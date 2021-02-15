@@ -1,0 +1,35 @@
+1. 게시판
+   공지 : 관리자 num desc
+   댓글 : 게시판 + 댓글 테이블 두개
+   답변 : ref, re_step, re_level 
+   댓글 + 답변 : 10장
+2. 회원전용
+   글쓰기, 수정, 삭제 회원 가능
+   조회 일반인 가능
+   불필요 : 암호, 이메일, 이름, ip (아이디 또는 이름으로 대체)
+3. paging 
+   mysql limit 인덱스, 갯수
+    - select * from board order by num desc limit 10,10; // 11데이터 부터 10건
+  oracle topN : inline view , a는 별칭
+   - 공지 
+          select * from (select rownum rn, a.* from 
+	(select * from board order by num desc) a )
+     		between rn 11 and 20;
+  - 댓글
+          select * from (select rownum rn, a.* from 
+	(select * from board order by ref desc, re_step) a )
+     		between rn 11 and 20;
+   - 회원 정리
+       select * from (select rownum rn, a.* from 
+	(select * from member order by reg_date desc) a )
+     		between rn 11 and 20;
+    -- 맨 처음에 테이블로 부터 추출라는 순서
+select rownum, m.* from member m order by id;
+select * from 
+    (select rownum rn, m.* from
+        (select * from member order by address) m)
+            where rn between 11 and 20;
+select * from 
+    (select rownum rn, m.* from
+        (select * from board order by ref desc, re_step) m)
+            where rn between 11 and 20;
