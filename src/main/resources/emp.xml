@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace xml을 구별하기 위한 이름 -->
+<!-- resultMap은 table에 컬럼명과 class에 member변수명이 다를 때 mapping하는 용도 -->
+<mapper namespace="empns">
+	<resultMap type="emp" id="empResult">
+		<result property="empno" column="empno"/>
+		<result property="ename" column="ename"/>
+		<result property="job" column="job"/>
+		<result property="mgr" column="mgr"/>
+		<result property="mgrName" column="mgrName"/>
+		<result property="hiredate" column="hiredate"/>
+		<result property="sal" column="sal"/>
+		<result property="comm" column="comm"/>
+		<result property="deptno" column="deptno"/>
+		<!-- 조인용으로 부서 전체 정보  -->
+		<collection property="dept" resultMap="deptResult"></collection>
+	</resultMap>
+	<resultMap type="dept" id="deptResult">
+		<result property="deptno" column="deptno"/>
+		<result property="dname" column="dname"/>
+		<result property="loc" column="loc"/>
+	</resultMap>
+	<select id="allEmpList" resultMap="empResult">
+		select w.*,m.ename mgrName,d.* from emp m, emp w, dept d
+			where w.deptno=d.deptno and w.mgr=m.empno(+) 
+			order by w.deptno, w.sal desc
+	</select>
+	<!-- where w.deptno=d.deptno and w.mgr=m.empno(+) (+)는 공란도 보여줘라!!!임 -->
+	<!-- <select id="allEmpList" resultMap="empResult">
+		select e.*,d.* from emp e, dept d 
+			where e.deptno=de.deptno order by e.deptno, sal desc
+	</select> -->
+	<!-- parameterType 은 DaoImpl 로 부터 데이터를 제공 받아서 xml 에서 사용 할 때 받는 데이터 타입 -->
+	<!-- #은 값 $는 변수명 -->
+	<select id="list" parameterType="integer" resultType="emp">
+		select * from emp where deptno=#{deptno} order by ename
+	</select>
+	<select id="empList" resultMap="empResult">
+		select * from emp order by ename
+	</select>
+	<select id="select" parameterType="integer" resultType="emp">
+		select * from emp where empno=#{empno}
+	</select>
+	<update id="update" parameterType="emp">
+		update emp set ename=#{ename},job=#{job},mgr=#{mgr},hiredate=#{hiredate},sal=#{sal},comm=#{comm},
+		deptno=#{deptno} where empno=#{empno}
+	</update>
+	<delete id="delete" parameterType="integer">
+		delete from emp where empno=#{empno}
+	</delete>
+	<insert id="insert" parameterType="emp">
+		insert into emp values(#{empno}, #{ename}, #{job}, #{mgr}, #{hiredate}, #{sal}, #{comm}, #{deptno})
+	</insert>
+</mapper>
